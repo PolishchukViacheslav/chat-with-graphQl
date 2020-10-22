@@ -9,7 +9,6 @@ export const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
-    textAlign: 'center',
     cursor: 'default',
   },
 }));
