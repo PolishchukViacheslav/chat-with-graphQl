@@ -1,11 +1,13 @@
 import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
+import { AppMenu } from './components/AppMenu';
 
 function App() {
   return (
-    <div className="App">
-      <h1>Im Templ</h1>
-    </div>
+    <Router>
+      <AppMenu />
+    </Router>
   );
 }
 
