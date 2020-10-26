@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Fab,
   List,
   ListItem,
@@ -28,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
 
 function ScrollTop(props) {
   const { children, window } = props;
-  console.log('win', window);
   const classes = useStyles();
   const trigger = useScrollTrigger({
     target: window ? window() : undefined,
@@ -38,7 +36,6 @@ function ScrollTop(props) {
 
   const handleClick = (event) => {
     const anchor = (event.target.ownerDocument || document).querySelector('#back-to-top-anchor');
-    // console.log('tyt', document, event.target.ownerDocument);
 
     if (anchor) {
       anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });

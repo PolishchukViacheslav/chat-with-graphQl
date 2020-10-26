@@ -1,9 +1,11 @@
 import React from 'react';
 import { AppMenu } from '../components/AppMenu';
-import { LoginButton } from '../components/LoginButton';
+import { SignIn } from '../components/SignIn';
+import { SignUp } from '../components/SignUp';
 
 export const LoginPage = () => (
   <AppMenu greeting="Welcome">
-    <LoginButton />
+    <SignUp />
+    <SignIn />
   </AppMenu>
 );
