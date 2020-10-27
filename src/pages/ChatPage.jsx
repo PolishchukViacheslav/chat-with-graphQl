@@ -62,6 +62,7 @@ export const ChatPage = (props) => (
         {[...new Array(102)]
           .map(
             (item, index) => (
+              // eslint-disable-next-line react/no-array-index-key
               <ListItem key={index}>
                 <ListItemIcon>
                   <SendIcon />

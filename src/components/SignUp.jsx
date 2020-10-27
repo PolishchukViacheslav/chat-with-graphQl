@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -8,8 +8,10 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { FormHelperText, Input } from '@material-ui/core';
-import { useApolloClient } from '@apollo/client';
-import { USER_LOGIN } from '../graphQl/graphQL';
+import { useMutation } from '@apollo/client';
+import { ADD_USER } from '../graphQl/graphQL';
+import { useStyles } from '../styles/useStyles';
+import { calculateDisabling } from './features/functions';
 
 export const SignUp = () => {
   // eslint-disable-next-line no-control-regex
@@ -18,14 +20,35 @@ export const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isMailValid, setIsMailValid] = useState(true);
+  const [isMailValid, setIsMailValid] = useState(false);
+  const [isNameValid, setIsNameValid] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [isNameError, setIsNameError] = useState(false);
+  const [isMailError, setIsMailError] = useState(false);
+  const [isPasswordError, setIsPasswordError] = useState(false);
   const history = useHistory('/chatRoom');
-  const client = useApolloClient();
 
-  const handleNameChanges = ({ target }) => {
-    setName(target.value);
-  };
+  const [addUser, { error }] = useMutation(ADD_USER, {
+    onCompleted: ({ registration: { token: payload } }) => {
+      localStorage.setItem('newUser', payload.token);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setOpen(false);
+      history.push('/chatRoom');
+    },
+    onError: () => (undefined),
+  });
+
+  const [graphError, setGraphError] = useState(null);
+  const classes = useStyles();
+
+  useEffect(() => {
+    if (error) {
+      setGraphError(error.message);
+    }
+  }, [error]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -35,36 +58,46 @@ export const SignUp = () => {
     setOpen(false);
   };
 
-  const emailValidation = () => {
-    if (emailPatternRFC5322.test(email) && email.length > 1) {
-      setIsMailValid(true);
-      return;
-    }
+  const emailValidation = (mailData) => (emailPatternRFC5322.test(mailData) && mailData.length > 1);
 
-    setIsMailValid(false);
+  const passwordValidation = (length) => (length >= 8);
+
+  const nameValidation = (userName) => (userName.length > 0);
+
+  const handleEmailChanges = ({ target }) => {
+    const isValid = emailValidation(target.value);
+    setIsMailValid(isValid);
+    setEmail(target.value);
+    setIsMailError(!isValid);
+    setIsButtonDisabled(calculateDisabling(isNameValid, isValid, isPasswordValid));
   };
 
-  const handleEmailChanges = (event) => {
-    setEmail(event.target.value);
-    emailValidation();
-    setIsButtonDisabled(!isMailValid);
+  const handleNameChanges = ({ target }) => {
+    const isValid = nameValidation(target.value);
+    setIsNameValid(isValid);
+    setName(target.value);
+    setIsNameError(!isValid);
+    setIsButtonDisabled(calculateDisabling(isValid, isMailValid, isPasswordValid));
+  };
+
+  const handlePasswordChanges = async ({ target }) => {
+    const isValid = passwordValidation(target.value.length);
+    setIsPasswordValid(isValid);
+    setPassword(target.value);
+    setIsPasswordError(!isValid);
+    setIsButtonDisabled(calculateDisabling(isNameValid, isMailValid, isValid));
   };
 
   const handleLogin = () => {
-    client.query({
-      query: USER_LOGIN,
+    addUser({
       variables: {
         user: {
+          login: name,
           email,
           password,
         },
       },
-    }).then(({ data: { signIn: { token: { token } } } }) => {
-      localStorage.setItem('token', token);
     });
-
-    setOpen(false);
-    history.push('/chatRoom');
   };
 
   return (
@@ -78,32 +111,46 @@ export const SignUp = () => {
           <DialogContentText>
             To signUp to this chat, please enter your Nick,Email address, password here.
           </DialogContentText>
+          {graphError && (
+          <DialogContentText color="error">
+            {graphError}
+          </DialogContentText>
+          )}
           <Input
             autoFocus
             placeholder="Enter Name"
+            error={isNameError}
             value={name}
             onChange={handleNameChanges}
             type="text"
+            className={classes.input}
           />
+          {isNameError
+          // eslint-disable-next-line react/no-children-prop
+          && <FormHelperText error children="Enter Name " />}
           <Input
             autoComplete
-            placeholder="Enter email"
-            error={!isMailValid}
+            placeholder="Enter E-mail"
+            error={isMailError}
             value={email}
             onChange={handleEmailChanges}
             type="email"
+            className={classes.input}
+
           />
-          {!isMailValid
+          {isMailError
           // eslint-disable-next-line react/no-children-prop
           && <FormHelperText error children="Enter valid email" />}
           <TextField
+            error={isPasswordError}
             margin="dense"
             id="name"
             label="Password"
             type="password"
             fullWidth
             value={password}
-            onChange={(event) => (setPassword(event.target.value))}
+            onChange={handlePasswordChanges}
+            helperText={isPasswordError ? 'You can use digits and characters min 8' : null}
           />
         </DialogContent>
         <DialogActions>

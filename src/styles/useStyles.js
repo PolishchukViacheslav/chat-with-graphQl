@@ -11,4 +11,8 @@ export const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     cursor: 'default',
   },
+  input: {
+    width: '100%',
+    margin: '16px 0 0',
+  },
 }));
