@@ -74,7 +74,7 @@ export const SignIn = () => {
             To login to this chat, please enter your email address here.
           </DialogContentText>
           <Input
-            autoComplete
+            autoComplete="true"
             autoFocus
             placeholder="Enter email"
             error={!isMailValid}

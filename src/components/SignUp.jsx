@@ -30,8 +30,9 @@ export const SignUp = () => {
   const history = useHistory('/chatRoom');
 
   const [addUser, { error }] = useMutation(ADD_USER, {
-    onCompleted: ({ registration: { token: payload } }) => {
-      localStorage.setItem('newUser', payload.token);
+    onCompleted: ({ registration: payload }) => {
+      console.log('ret', payload);
+      localStorage.setItem('token', payload.token);
       setName('');
       setEmail('');
       setPassword('');
@@ -91,11 +92,9 @@ export const SignUp = () => {
   const handleLogin = () => {
     addUser({
       variables: {
-        user: {
-          login: name,
-          email,
-          password,
-        },
+        login: name,
+        email,
+        password,
       },
     });
   };
@@ -129,7 +128,7 @@ export const SignUp = () => {
           // eslint-disable-next-line react/no-children-prop
           && <FormHelperText error children="Enter Name " />}
           <Input
-            autoComplete
+            autoComplete="true"
             placeholder="Enter E-mail"
             error={isMailError}
             value={email}
