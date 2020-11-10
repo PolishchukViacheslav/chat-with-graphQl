@@ -15,4 +15,12 @@ export const useStyles = makeStyles((theme) => ({
     width: '100%',
     margin: '16px 0 0',
   },
+  chatInput: {
+    position: 'fixed',
+    bottom: 0,
+    backgroundColor: 'white',
+    width: '100%',
+    border: '1px solid grey',
+    borderRadius: '6px',
+  },
 }));

@@ -33,6 +33,7 @@ export const SignUp = () => {
     onCompleted: ({ registration: payload }) => {
       console.log('ret', payload);
       localStorage.setItem('token', payload.token);
+      localStorage.setItem('userName', payload.user.login);
       setName('');
       setEmail('');
       setPassword('');
