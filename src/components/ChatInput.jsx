@@ -6,14 +6,14 @@ export const ChatInput = ({ sendMassage }) => {
   const [message, setMessage] = useState('');
   const classes = useStyles();
   const handleSendMessage = ({ keyCode }) => {
-    if (keyCode === 13) {
+    if (keyCode === 13 && message !== '') {
       sendMassage({ variables: { description: message } });
       setMessage('');
     }
   };
 
   return (
-    <Box>
+    <Box className={classes.chatInputWrapper}>
       <Input
         autoComplete="true"
         placeholder="Start typing your message here"

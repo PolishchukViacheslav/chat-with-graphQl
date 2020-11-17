@@ -50,8 +50,8 @@ export const GET_CORRESPONDENCE = gql`
 `;
 
 export const MESSAGES_SUBSCRIPTION = gql`
-  subscription {
-    messageAdded {
+  subscription($date: DateTime!) {
+    messageAdded(date: $date) {
       description
       id
     }

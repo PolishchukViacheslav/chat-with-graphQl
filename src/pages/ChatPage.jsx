@@ -9,7 +9,7 @@ import {
   Toolbar,
 } from '@material-ui/core';
 import SendIcon from '@material-ui/icons/Send';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import { AppMenu } from '../components/AppMenu';
@@ -20,9 +20,11 @@ import { useStyles } from '../styles/useStyles';
 import { ChatInput } from '../components/ChatInput';
 
 export const ChatPage = (props) => {
+  const viewToScroll = useRef();
   const classes = useStyles();
   const userName = localStorage.getItem('userName') || 'User';
   const [messages, setMessages] = useState([]);
+  const [timeUTC] = useState(new Date().toISOString().slice(0, -5).concat('Z'));
   const [getMessages] = useLazyQuery(GET_CORRESPONDENCE,
     {
       fetchPolicy: 'network-only',
@@ -30,13 +32,21 @@ export const ChatPage = (props) => {
         setMessages(getAllMessages);
       },
     });
-  const { data, loading } = useSubscription(MESSAGES_SUBSCRIPTION,
+
+  const scrollToButton = () => {
+    console.log(viewToScroll.current.lastChild);
+    viewToScroll.current.lastChild.scrollIntoView();
+  };
+
+  const { data, loading, error } = useSubscription(MESSAGES_SUBSCRIPTION,
     {
-      onSubscriptionData: ({ subscriptionData: { data: newData } }) => {
+      variables: { date: timeUTC },
+      onSubscriptionData: ({ subscriptionData: { data: messageAdded } }) => {
         setMessages(
           (oldMessages) => {
-            const newMessage = newData.messageAdded;
-            return [...oldMessages, newMessage];
+            const { messageAdded: newMessage } = messageAdded;
+            console.log(document.body);
+            return [...oldMessages, ...newMessage];
           },
         );
       },
@@ -48,9 +58,14 @@ export const ChatPage = (props) => {
     getMessages();
   }, []);
 
-  useEffect(() => {
-    console.log('new Message', data, loading);
-  }, [data, loading]);
+  useLayoutEffect(() => {
+    if (viewToScroll.current.lastChild !== null) {
+      scrollToButton({ behavior: 'smooth', block: 'center' });
+    }
+    if (!loading) {
+      console.log('new Message finish');
+    }
+  }, [messages]);
 
   return (
     <>
@@ -59,7 +74,7 @@ export const ChatPage = (props) => {
           <UserIcon />
         </AppMenu>
         <Toolbar id="back-to-top-anchor" />
-        <List>
+        <List ref={viewToScroll}>
           {messages
             .map(
               ({ id, description }) => (
@@ -73,7 +88,6 @@ export const ChatPage = (props) => {
               ),
             )}
         </List>
-        {/* </Box> */}
       </Box>
       <ScrollTop {...props}>
         <Fab color="secondary" size="small" aria-label="scroll back to top">
