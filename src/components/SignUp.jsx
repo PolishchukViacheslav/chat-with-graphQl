@@ -90,7 +90,7 @@ export const SignUp = () => {
     setIsButtonDisabled(calculateDisabling(isNameValid, isMailValid, isValid));
   };
 
-  const handleLogin = () => {
+  const handleSignUp = () => {
     addUser({
       variables: {
         login: name,
@@ -157,7 +157,7 @@ export const SignUp = () => {
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleLogin} color="primary" disabled={isButtonDisabled}>
+          <Button onClick={handleSignUp} color="primary" disabled={isButtonDisabled}>
             SignUp
           </Button>
         </DialogActions>

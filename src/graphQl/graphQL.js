@@ -9,7 +9,10 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 export const USER_LOGIN = gql`
   query($email: String!, $password:String!) {
     signIn(email: $email, password: $password) {
-      token 
+      token,
+      user {
+        login
+      },
     }
   }
 `;

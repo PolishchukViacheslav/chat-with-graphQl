@@ -49,17 +49,16 @@ export const SignIn = () => {
     client.query({
       query: USER_LOGIN,
       variables: {
-        user: {
-          email,
-          password,
-        },
+        email,
+        password,
       },
-    }).then(({ data: { signIn: { token: { token } } } }) => {
+    }).then(({ data: { signIn: { user, token } } }) => {
+      console.log('>>>>>>>', user);
+      localStorage.setItem('userName', user.login);
       localStorage.setItem('token', token);
+      setOpen(false);
+      history.push('/chatRoom');
     });
-
-    setOpen(false);
-    history.push('/chatRoom');
   };
 
   return (
